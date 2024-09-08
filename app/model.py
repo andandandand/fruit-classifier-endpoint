@@ -39,7 +39,7 @@ def download_artifact():
 
 
 def get_raw_model() -> ResNet:
-
+    """this returns the architecture of the model, without its wandb weights"""
     N_CLASSES = 6
 
     model = resnet18(weights=None)
@@ -54,14 +54,15 @@ def get_raw_model() -> ResNet:
     return model 
 
 def load_model() -> ResNet:
+    """this returns the model with its wandb weights"""
     download_artifact()
     model = get_raw_model()
     model_state_dict_path = os.path.join(MODELS_DIR, MODEL_FILE_NAME)
     model_state_dict = torch.load(model_state_dict_path, map_location='cpu')
     # this was strict=False in the code here https://github.com/aihpi/fruit-classifier-gcloud-run/blob/main/app/model.py
     model.load_state_dict(model_state_dict, strict=True) 
+    # this turns off BatchNorm and DropOut, this is inference state (not training)
     model.eval()
-
     return model
 
 def load_transforms() -> transforms.Compose:

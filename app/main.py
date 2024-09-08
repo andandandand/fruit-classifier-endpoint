@@ -3,9 +3,16 @@ from pydantic import BaseModel # this has nothing to do my machine learning mode
 
 from fastapi import FastAPI, Depends, UploadFile, File
 
+from torchvision import transforms
+from torchvision.models import ResNet
+
 # we need this to upload images to fastAPI
 # this is the Python image library
 from PIL import Image
+
+from app.model import load_model, load_transforms, CATEGORIES
+
+import io
 
 # This is what we use the BaseModel for
 # the result is strictly typed so that it returns 
@@ -20,8 +27,23 @@ class Result(BaseModel):
 app = FastAPI()
 
 
+# response_model is a pydantic BaseModel, not a machine learning model 
+# is the POST response that we are defining with class Result(BaseModel)
 @app.post('/predict', response_model=Result )
 async def predict(
+    # the output of File(...) is assigned to input_image, which is an UploadFile
     input_image: UploadFile = File(...),
-    model: ResNet = Depends(load_model),
-):
+    # the output of the load_model() function is assigned to model, which is of type ResNet 
+    model: ResNet = Depends(load_model)
+) -> Result: # this arrow specifies that predict() returns a Result object
+    
+    # Read the uploaded image
+    image = Image.open(io.BytesIO(await input_image.read()))
+
+    #convert of RGBA to RGB
+    if image.mode == 'RGBA':
+        image.convert('RGB')
+
+    # apply the transformations to the image
+    image = transforms(image).unsqueeze(0)
+                       
