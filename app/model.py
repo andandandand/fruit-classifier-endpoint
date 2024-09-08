@@ -73,4 +73,3 @@ def load_transforms() -> transforms.Compose:
                              [0.229, 0.224, 0.225])
     ])
 
-load_model()
