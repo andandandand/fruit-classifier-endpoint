@@ -8,9 +8,9 @@ from torchvision.models import resnet18, ResNet
 #todo: remember to delete the use of the 
 # loadotenv and os.getenv entries 
 # when we use the Docker image later
-from loadotenv import load_env
+#from loadotenv import load_env
 
-load_env(file_loc='/workspaces/fruit-classifier-endpoint/app/.env')
+#load_env(file_loc='/workspaces/fruit-classifier-endpoint/app/.env')
 
 MODELS_DIR = 'models'
 MODEL_FILE_NAME = 'model.pth'

@@ -2,3 +2,4 @@ venv
 models
 *.pyc
 app/.env
+Dockerfile
