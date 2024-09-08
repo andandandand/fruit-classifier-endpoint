@@ -10,7 +10,11 @@ from torchvision.models import ResNet
 # this is the Python image library
 from PIL import Image
 
+import torch
+
 from app.model import load_model, load_transforms, CATEGORIES
+
+import torch.nn.functional as F
 
 import io
 
@@ -45,5 +49,18 @@ async def predict(
         image.convert('RGB')
 
     # apply the transformations to the image
+    # we use unsqueeze(0) to define a batch size of 1 to feed the tensor to the model 
     image = transforms(image).unsqueeze(0)
-                       
+
+    #Make the prediction
+    with torch.no_grad():
+        outputs = model(image)
+        # todo: set up a breakpoint to understand outputs[0] and dim = 0
+        probabilities = F.softmax(outputs[0], dim=0)
+        confidence, predicted_class = torch.max(probabilities, 0)
+
+    # Predicted label
+    category = CATEGORIES[predicted_class.item()]
+
+    return Result(category=category,
+                   confidence=confidence.item())
