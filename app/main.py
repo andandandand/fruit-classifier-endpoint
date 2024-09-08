@@ -31,6 +31,10 @@ class Result(BaseModel):
 app = FastAPI()
 
 
+@app.get('/')
+def read_root():
+    return {'message': 'This is not supposed to be used like this, use POST'}
+
 # response_model is a pydantic BaseModel, not a machine learning model 
 # is the POST response that we are defining with class Result(BaseModel)
 @app.post('/predict', response_model=Result )
@@ -38,7 +42,8 @@ async def predict(
     # the output of File(...) is assigned to input_image, which is an UploadFile
     input_image: UploadFile = File(...),
     # the output of the load_model() function is assigned to model, which is of type ResNet 
-    model: ResNet = Depends(load_model)
+    model: ResNet = Depends(load_model),
+    transforms: transforms.Compose = Depends(load_transforms)
 ) -> Result: # this arrow specifies that predict() returns a Result object
     
     # Read the uploaded image
